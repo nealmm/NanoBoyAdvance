@@ -5,10 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/CMakeModules)
 
-include(FindSDL2)
-find_package(SDL2 REQUIRED)
-find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
+if (NOT EMSCRIPTEN)
+  include(FindSDL2)
+  find_package(SDL2 REQUIRED)
+  find_package(OpenGL REQUIRED)
+  find_package(GLEW REQUIRED)
+endif()
 
 set(SOURCES
   src/device/ogl_video_device.cpp
@@ -49,4 +51,11 @@ target_include_directories(platform-core PRIVATE src)
 target_include_directories(platform-core PUBLIC include ${SDL2_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
 
 target_link_libraries(platform-core PRIVATE unarr)
-target_link_libraries(platform-core PUBLIC nba toml11::toml11 ${SDL2_LIBRARY} OpenGL::GL GLEW::GLEW)
+target_link_libraries(platform-core PUBLIC nba toml11::toml11)
+
+if (EMSCRIPTEN)
+  target_compile_options(platform-core PUBLIC -sUSE_SDL=2)
+  target_link_options(platform-core PUBLIC -sUSE_SDL=2)
+else()
+  target_link_libraries(platform-core PUBLIC ${SDL2_LIBRARY} OpenGL::GL GLEW::GLEW)
+endif()
