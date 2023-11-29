@@ -117,6 +117,11 @@ add_library(nba STATIC ${SOURCES} ${HEADERS} ${HEADERS_PUBLIC})
 target_include_directories(nba PRIVATE src)
 target_include_directories(nba PUBLIC include)
 
+if (EMSCRIPTEN)
+  target_compile_options(nba PUBLIC -pthread)
+  target_link_options(nba PUBLIC -pthread)
+endif()
+
 target_link_libraries(nba PUBLIC fmt)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
